@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>표적 약물 침투 모의실험</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div>
+    <div class="eyebrow">BIO-DIFFUSION SIMULATOR · v1.0</div>
+    <h1>표적 약물 침투 모의실험</h1>
+    <p>실험에서 얻은 조건을 입력하고, 전하·강성·시간이 침투와 결합에 미치는 영향을 비교합니다.</p>
+  </div>
+  <div class="model-badge">Fick II + Hill-type + stiffness model</div>
+</header>
+
+<main class="layout">
+  <section class="panel controls">
+    <div class="panel-title">
+      <div>
+        <span class="section-kicker">01 · EXPERIMENT SETUP</span>
+        <h2>실험 조건</h2>
+      </div>
+      <button id="presetBtn" class="ghost">실제 실험 기본값</button>
+    </div>
+
+    <div class="group">
+      <h3>A. 키토산 코팅 실험</h3>
+      <label>키토산 + 아세트산 용액 침지 시간
+        <select id="coatTime">
+          <option value="0">0분</option>
+          <option value="10" selected>10분</option>
+          <option value="20">20분</option>
+          <option value="40">40분</option>
+        </select>
+      </label>
+      <div class="hint">0/10/20/40분은 실제 실험 조건. 아래 전하값은 측정값이 있으면 교체하세요.</div>
+
+      <div class="two">
+        <label>비드 표면 전위 (mV)
+          <input id="beadCharge" type="number" step="0.1" value="-25">
+        </label>
+        <label>표적 세포 표면 전위 (mV)
+          <input id="cellCharge" type="number" step="0.1" value="-30">
+        </label>
+      </div>
+
+      <label>메틸렌블루 초기 농도 (μM)
+        <input id="mbConc" type="number" min="0.01" step="0.1" value="10">
+      </label>
+      <div class="hint">농도 자체보다 상대적인 침투 비교가 목적이라면 모든 조건에서 같은 값을 유지하세요.</div>
+    </div>
+
+    <div class="group">
+      <h3>B. 한천 강성 실험</h3>
+      <label>한천 농도 (% w/v)
+        <select id="agarPct">
+          <option value="0">0%</option>
+          <option value="0.5">0.5%</option>
+          <option value="1">1%</option>
+          <option value="1.5">1.5%</option>
+          <option value="2" selected>2%</option>
+        </select>
+      </label>
+
+      <div class="two">
+        <label>표적 조직 강성 (kPa)
+          <input id="stiffness" type="number" min="0.01" step="0.1" value="8">
+        </label>
+        <label>최적 강성 가설 (kPa)
+          <input id="optStiffness" type="number" min="0.01" step="0.1" value="20">
+        </label>
+      </div>
+
+      <label class="check"><input id="agarProxy" type="checkbox" checked> 한천 %를 강성의 대리변수로 사용</label>
+      <div class="hint">체크 시 0/0.5/1/1.5/2%가 모델용 강성값으로 변환됩니다. 실제 탄성률을 측정했다면 체크를 끄고 kPa를 직접 입력하세요.</div>
+    </div>
+
+    <div class="group">
+      <h3>C. 확산/결합 모델</h3>
+      <div class="two">
+        <label>기준 확산계수 D₀ (mm²/min)
+          <input id="d0" type="number" min="0.0001" step="0.001" value="0.020">
+        </label>
+        <label>강성에 의한 확산 저하 E<sub>D</sub> (kPa)
+          <input id="ed" type="number" min="0.01" step="0.1" value="20">
+        </label>
+      </div>
+      <div class="two">
+        <label>Hill K<sub>d</sub> (mV)
+          <input id="kd" type="number" min="0.01" step="0.1" value="25">
+        </label>
+        <label>Hill 계수 n
+          <input id="hillN" type="number" min="0.1" step="0.1" value="2">
+        </label>
+      </div>
+      <label>최적 강성 곡선의 폭
+        <input id="stiffWidth" type="range" min="0.25" max="2.5" step="0.05" value="1">
+      </label>
+      <div class="range-value"><span id="stiffWidthVal">1.00</span> · 클수록 최적점 주변에서 완만해집니다.</div>
+
+      <label>관찰 시간 (min)
+        <input id="obsTime" type="range" min="1" max="60" step="1" value="20">
+      </label>
+      <div class="range-value"><span id="obsTimeVal">20</span>분</div>
+    </div>
+
+    <button id="runBtn" class="run">▶ 모의실험 실행</button>
+    <button id="sweepBtn" class="secondary">조건 스윕: 0/0.5/1/1.5/2% 비교</button>
+  </section>
+
+  <section class="panel visual">
+    <div class="panel-title">
+      <div>
+        <span class="section-kicker">02 · VISUALIZATION</span>
+        <h2>비드 내부 침투 모습</h2>
+      </div>
+      <div id="status" class="status">대기 중</div>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas id="simCanvas" width="560" height="560"></canvas>
+      <div class="legend">
+        <span><i class="low"></i>낮은 농도</span>
+        <span><i class="high"></i>높은 농도/결합</span>
+      </div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric"><span>유효 침투 지수</span><strong id="penetration">-</strong><small>0~100</small></div>
+      <div class="metric"><span>평균 내부 농도</span><strong id="avgConc">-</strong><small>상대값 %</small></div>
+      <div class="metric"><span>Hill 결합률</span><strong id="binding">-</strong><small>모델값</small></div>
+      <div class="metric"><span>유효 확산계수</span><strong id="deff">-</strong><small>mm²/min</small></div>
+    </div>
+
+    <div class="interpret">
+      <h3>현재 조건 해석</h3>
+      <p id="interpretText">모의실험을 실행하면 결과가 표시됩니다.</p>
+    </div>
+  </section>
+
+  <section class="panel chart-panel">
+    <div class="panel-title">
+      <div>
+        <span class="section-kicker">03 · PARAMETER SWEEP</span>
+        <h2>조건에 따른 결과</h2>
+      </div>
+    </div>
+    <canvas id="chartCanvas" width="1100" height="360"></canvas>
+    <div id="sweepTable" class="table-wrap"></div>
+  </section>
+
+  <section class="panel equations">
+    <div class="panel-title">
+      <div>
+        <span class="section-kicker">04 · MODEL</span>
+        <h2>사용한 수학적 모델</h2>
+      </div>
+    </div>
+    <div class="eq-grid">
+      <div class="eq-card">
+        <b>Fick의 제2법칙</b>
+        <div class="formula">∂C/∂t = D<sub>eff</sub>∇²C</div>
+        <p>공간에 따른 농도 차이로 물질이 확산되는 과정을 계산합니다.</p>
+      </div>
+      <div class="eq-card">
+        <b>Hill-type 결합 모델</b>
+        <div class="formula">θ = A<sup>n</sup> / (K<sub>d</sub><sup>n</sup> + A<sup>n</sup>)</div>
+        <p>A는 두 표면의 전하로부터 계산한 '유효 정전기적 인력'입니다.</p>
+      </div>
+      <div class="eq-card">
+        <b>강성-확산 가설</b>
+        <div class="formula">D<sub>eff</sub> = D₀ / [1 + (E/E<sub>D</sub>)²]</div>
+        <p>강성이 커지면 네트워크를 통한 확산이 제한될 수 있다는 가정입니다.</p>
+      </div>
+      <div class="eq-card">
+        <b>강성 최적점 가설</b>
+        <div class="formula">S(E) = (E/E*)e<sup>1−E/E*</sup></div>
+        <p>결합/침투 효과가 무조건 증가하지 않고 최적 강성 이후 감소할 가능성을 표현합니다.</p>
+      </div>
+    </div>
+    <div class="warning">
+      <b>중요:</b> Fick의 확산 법칙과 Hill 방정식은 실제 과학적 모델이지만, 이 프로그램에서 전하·강성을 Hill 모델과 연결하는 방식과 '최적 강성' 식은
+      여러분의 실험을 설명하기 위한 <b>가설적/현상론적 모델</b>입니다. 전위, 확산계수, 탄성률을 직접 측정해 값을 교체하면 연구용 모델의 신뢰도가 크게 올라갑니다.
+    </div>
+  </section>
+</main>
+
+<footer>
+  표적 약물 침투 모의실험 · 교육/연구용 시뮬레이션 · 실제 생체 조건을 그대로 재현하는 임상 모델이 아님
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

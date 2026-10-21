@@ -1,0 +1,38 @@
+*{box-sizing:border-box}
+:root{
+  --bg:#f4f6f8;--panel:#fff;--ink:#17202a;--muted:#6d7782;
+  --line:#e2e7eb;--accent:#315caa;--accent2:#5e8ed6;--soft:#edf3fb;
+}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI","Malgun Gothic",Arial,sans-serif}
+.topbar{background:#fff;border-bottom:1px solid var(--line);padding:28px max(24px,calc((100vw - 1400px)/2))}
+.eyebrow,.section-kicker{font-size:11px;letter-spacing:1.7px;color:var(--accent);font-weight:800}
+h1{font-size:30px;margin:6px 0 8px}.topbar p{margin:0;color:var(--muted)}
+.model-badge{float:right;margin-top:-42px;background:var(--soft);color:var(--accent);padding:10px 14px;border-radius:999px;font-size:12px;font-weight:700}
+.layout{max-width:1400px;margin:24px auto;padding:0 20px;display:grid;grid-template-columns:390px 1fr;gap:18px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:0 5px 18px rgba(20,35,50,.045);overflow:hidden}
+.panel-title{display:flex;justify-content:space-between;align-items:center;padding:20px 22px;border-bottom:1px solid var(--line)}
+h2{font-size:19px;margin:5px 0 0}h3{font-size:14px;margin:0 0 12px}.controls{grid-row:span 2}
+.group{padding:18px 20px;border-bottom:1px solid var(--line)}
+label{display:block;font-size:12px;font-weight:700;margin:12px 0;color:#37414b}
+input,select{display:block;width:100%;margin-top:6px;border:1px solid #cfd7df;border-radius:9px;padding:9px 10px;background:#fff;color:var(--ink);font-size:13px}
+input:focus,select:focus{outline:2px solid #cfe0fa;border-color:var(--accent)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.hint,.range-value{font-size:11px;color:var(--muted);line-height:1.5}.check{display:flex;align-items:center;gap:8px}.check input{width:auto;margin:0}
+button{font:inherit;border:0;cursor:pointer}.ghost{background:#f2f4f7;color:#46515c;border-radius:8px;padding:8px 11px;font-size:11px;font-weight:700}
+.run{display:block;width:calc(100% - 40px);margin:18px 20px 10px;background:var(--accent);color:#fff;border-radius:10px;padding:13px;font-weight:800}
+.secondary{display:block;width:calc(100% - 40px);margin:0 20px 20px;background:#eef2f6;color:#33404d;border-radius:10px;padding:11px;font-weight:700}
+.visual{min-height:670px}.canvas-wrap{padding:12px 20px 0;text-align:center}
+#simCanvas{width:min(100%,560px);height:auto;border-radius:16px;background:#f8fafc}
+.legend{display:flex;justify-content:center;gap:22px;font-size:11px;color:var(--muted);margin:8px 0 12px}.legend i{display:inline-block;width:11px;height:11px;border-radius:50%;vertical-align:-1px;margin-right:5px}.low{background:#d9edf7}.high{background:#315caa}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.metric{padding:15px;text-align:center;border-right:1px solid var(--line)}.metric:last-child{border:0}.metric span{font-size:10px;color:var(--muted);display:block}.metric strong{display:block;font-size:23px;margin:5px 0}.metric small{font-size:10px;color:var(--muted)}
+.interpret{padding:18px 22px}.interpret p{margin:7px 0;color:#46515c;line-height:1.7;font-size:13px}
+.status{font-size:11px;background:#f0f3f6;color:#66717c;border-radius:999px;padding:7px 10px}
+.status.ok{background:#eaf5ee;color:#277347}
+.chart-panel{grid-column:2}.chart-panel canvas{width:100%;height:auto;padding:16px 20px 0}.table-wrap{padding:0 20px 20px;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:9px;border-bottom:1px solid var(--line);text-align:right}th:first-child,td:first-child{text-align:left}th{background:#f7f9fb;color:#59636d}
+.equations{grid-column:1/-1}.eq-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:20px}
+.eq-card{border:1px solid var(--line);border-radius:12px;padding:15px}.formula{font-family:Georgia,serif;font-size:17px;margin:12px 0}.eq-card p{font-size:11px;color:var(--muted);line-height:1.55;margin:0}
+.warning{margin:0 20px 20px;background:#fff8e7;border:1px solid #f1dfad;padding:14px;border-radius:11px;font-size:11px;line-height:1.6;color:#62532c}
+footer{text-align:center;color:#8a949e;font-size:11px;padding:25px}
+@media(max-width:1000px){.layout{grid-template-columns:1fr}.controls,.chart-panel,.equations{grid-column:auto;grid-row:auto}.eq-grid{grid-template-columns:1fr 1fr}.model-badge{float:none;margin:12px 0 0;display:inline-block}}
+@media(max-width:600px){.two,.metrics,.eq-grid{grid-template-columns:1fr 1fr}.metrics .metric{min-width:0}.metric strong{font-size:18px}}
